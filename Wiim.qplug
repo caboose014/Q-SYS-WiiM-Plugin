@@ -1,0 +1,1822 @@
+PluginInfo = {
+    Name = "WiiM~WiiM Streamer IP Controler",
+    Version = "1.0",
+    BuildVersion = "1.0.0.9853",
+    Id = "WiiM_IP",
+    Author = "Jordan McDonald",
+    Description = "IP Control for any WiiM Streamer",
+    ShowDebug = true
+}
+
+local Colors = {
+    White = {255, 255, 255},
+    Black = {0, 0, 0},
+    Red = {255, 0, 0},
+    Green = {0, 255, 0},
+    Theme = {72, 225, 189}
+}
+
+-- Define the color of the plugin object in the design
+function GetColor(props)
+    return {72, 225, 189}
+end
+
+-- The name that will initially display when dragged into a design
+function GetPrettyName(props)
+    return "WiiM IP Streamer"
+end
+
+-- Define User configurable Properties of the plugin
+function GetProperties()
+    local props = {}
+    table.insert(
+        props,
+        {
+            Name = "Debug Print",
+            Type = "enum",
+            Choices = {"None", "Tx/Rx", "Tx", "Rx", "Function Calls", "All"},
+            Value = "All"
+        }
+    )
+    table.insert(
+        props,
+        {
+            Name = "Preset Background",
+            Type = "boolean",
+            Value = true
+        }
+    )
+    table.insert(
+        props,
+        {
+            Name = "Preset Count",
+            Type = "integer",
+            Min = 1,
+            Max = 12,
+            Value = 12
+        }
+    )
+    return props
+end
+
+PageNames = {"Setup", "Controls", "Presets", "Now Playing"} --List the pages within the plugin
+function GetPages(props)
+    local pages = {}
+    for ix, name in ipairs(PageNames) do
+        table.insert(pages, {name = PageNames[ix]})
+    end
+    return pages
+end
+
+-- Function to define pins on the plugin that are not connected to a control
+function GetPins(props)
+    local pins = {}
+    return pins
+end
+
+-- Optional function to update available properties when properties are altered by the user
+function RectifyProperties(props)
+    if props.plugin_show_debug.Value == false then
+        props["Debug Print"].IsHidden = true
+    end
+    return props
+end
+-- Optional function to define components used within the plugin
+function GetComponents(props)
+    local components = {}
+    return components
+end
+
+-- Optional function to define wiring of components used within the plugin
+function GetWiring(props)
+    local wiring = {}
+    return wiring
+end
+
+function GetControls(props)
+    local ctrls = {}
+    table.insert(
+        ctrls,
+        {
+            Name = "Status",
+            ControlType = "Indicator",
+            IndicatorType = "Status",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Reboot",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Shutdown",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Shutdown_Time",
+            ControlType = "Knob",
+            UserPin = true,
+            Count = 1,
+            ControlUnit = "Integer",
+            Min = 0,
+            Max = 300,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Cancel_Shutdown",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Output_COAX",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Output_SPDIF",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Output_AUX",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Input_LINE",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Input_BLUETOOTH",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Input_OPTICAL",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Input_Selection",
+            ControlType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Output_Selection",
+            ControlType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Input_UDISK",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Input_WIFI",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "IP_Address",
+            ControlType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    -- table.insert(
+    --     ctrls,
+    --     {
+    --         Name = "Serial_Number",
+    --         ControlType = "Indicator",
+    --         IndicatorType = "Text",
+    --         UserPin = true,
+    --         Count = 1,
+    --         PinStyle = "Output"
+    --     }
+    -- )
+    table.insert(
+        ctrls,
+        {
+            Name = "MAC_Address",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Release_Version",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Internet_Connection",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Unit_Name",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Unit_Group",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Stored_Presets",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Unit_UUID",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Fixed_Volume",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    -- table.insert(
+    --     ctrls,
+    --     {
+    --         Name = "Unit_Mute",
+    --         ControlType = "Indicator",
+    --         IndicatorType = "Text",
+    --         UserPin = true,
+    --         Count = 1,
+    --         PinStyle = "Output"
+    --     }
+    -- )
+    table.insert(
+        ctrls,
+        {
+            Name = "Playing_Title",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Playing_Album",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Playing_Artist",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Playing_Source",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Output"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "EQ_State",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "EQ_Selection",
+            ControlType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Play_URL",
+            ControlType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Go_URL",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Playlist_URL",
+            ControlType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Go_PlaylistURL",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Input"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Volume",
+            ControlType = "Knob",
+            UserPin = true,
+            Count = 1,
+            ControlUnit = "Integer",
+            Min = 0,
+            Max = 100,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Mute_Toggle",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Cover_Art",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "None"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "Cover_Art_URL",
+            ControlType = "Text",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    for x = 1, props["Preset Count"].Value do
+        table.insert(
+            ctrls,
+            {
+                Name = "Preset_" .. x,
+                ControlType = "Button",
+                ButtonType = "Trigger",
+                UserPin = true,
+                Count = 1,
+                PinStyle = "Both"
+            }
+        )
+        table.insert(
+            ctrls,
+            {
+                Name = "Preset_Name_" .. x,
+                ControlType = "Text",
+                UserPin = true,
+                Count = 1
+            }
+        )
+        table.insert(
+            ctrls,
+            {
+                Name = "Preset_ArtURI_" .. x,
+                ControlType = "Text",
+                UserPin = true,
+                Count = 1
+            }
+        )
+    end
+
+    -- table.insert(
+    --     ctrls,
+    --     {
+    --         Name = "Seek_Bar",
+    --         ControlType = "Knob",
+    --         UserPin = true,
+    --         Count = 1,
+    --         ControlUnit = "Integer",
+    --         Min = 0,
+    --         Max = 100,
+    --         PinStyle = "None"
+    --     }
+    -- )
+
+    table.insert(
+        ctrls,
+        {
+            Name = "CMD_Play",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            Icon = "Play",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "CMD_Pause",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            Icon = "Pause",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "CMD_PPToggle",
+            ControlType = "Button",
+            Icon = "Play Pause",
+            ButtonType = "Toggle",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "CMD_Stop",
+            ControlType = "Button",
+            Icon = "Stop",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "CMD_Next",
+            ControlType = "Button",
+            Icon = "Next",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "CMD_Prev",
+            ControlType = "Button",
+            Icon = "Previous",
+            ButtonType = "Trigger",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    table.insert(
+        ctrls,
+        {
+            Name = "CMD_Loop",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            Icon = "Loop",
+            UserPin = true,
+            Count = 1,
+            PinStyle = "Both"
+        }
+    )
+    return ctrls
+end
+
+-- Layout of controls and graphics for the plugin UI to display
+function GetControlLayout(props)
+    local layout = {}
+    local graphics = {}
+    local current_page = PageNames[props["page_index"].Value]
+
+    local FSize = 12
+    local FName = "Roboto"
+    local FStyle = "Regular"
+    local labelSize = {130, 30}
+    local textboxSize = {150, 30}
+    local buttonSize = {70, 60}
+    local presetbuttonsize = {90, 90}
+
+    table.insert(
+        graphics,
+        {
+            Type = "Svg",
+            -- White:
+            -- Image = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI3LjQuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkJsYWNrX0FpclBsYXlfaWNvbiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IgoJIHk9IjBweCIgdmlld0JveD0iMCAwIDI2MCA4Ny40IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAyNjAgODcuNDsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOiNGRkZGRkY7fQo8L3N0eWxlPgo8Zz4KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik04MC42LDAuM2MtNC44LDAtOC43LDMuOS04LjcsOC43djQxLjVjMCw0LjgsMy45LDguNyw4LjcsOC43YzQuOCwwLDguNy0zLjksOC43LTguN1Y5CgkJQzg5LjIsNC4yLDg1LjMsMC4zLDgwLjYsMC4zQzgwLjYsMC4zLDgwLjYsMC4zLDgwLjYsMC4zeiIvPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTc5LjcsNjEuM2MtMy4zLDAtNi41LTEuNC04LjgtMy44TDUxLDM4LjljLTEuNy0xLjYtNC0yLjQtNi40LTIuM2MtMi40LTAuMS00LjcsMC43LTYuNCwyLjNMMTcuNCw1OC40di0wLjMKCQljLTQuOSw0LjUtMTIuNiw0LjEtMTcuMS0wLjhDMC4yLDU3LjIsMC4xLDU3LjEsMCw1N3YyMS40YzAsMC4yLDAsMC40LDAsMC42YzAsMC4zLDAsMC43LDAuMSwxYzAsMC4zLDAuMSwwLjUsMC4yLDAuOAoJCWMwLjEsMC4zLDAuMiwwLjYsMC4zLDAuOGMwLjEsMC4zLDAuMywwLjUsMC40LDAuOHMwLjMsMC41LDAuNCwwLjdzMC40LDAuNSwwLjYsMC44YzAuMiwwLjMsMC4yLDAuMywwLjQsMC41bDAsMGwwLjEsMC4xCgkJYzAuMiwwLjIsMC41LDAuNSwwLjgsMC43YzAuMiwwLjEsMC40LDAuMywwLjUsMC41YzAuMiwwLjEsMC41LDAuMywwLjgsMC40YzAuMiwwLjEsMC41LDAuMywwLjcsMC40bDAuOCwwLjMKCQljMC4zLDAuMSwwLjYsMC4yLDAuOSwwLjNjMC4yLDAsMC41LDAsMC43LDBjMC4zLDAuMSwwLjYsMC4xLDEsMC4xaDAuMWMwLjIsMCwwLjQsMCwwLjYsMGMwLjMsMCwwLjYsMCwxLDBsMC44LTAuMgoJCWMwLjMsMCwwLjYtMC4yLDAuOC0wLjNjMC4zLTAuMSwwLjUtMC4yLDAuOC0wLjRsMC43LTAuNGMwLjMtMC4yLDAuNS0wLjQsMC44LTAuNmwwLjUtMC40bDMwLjEtMjguMWwzMCwyOGMwLjEsMC4xLDAuMywwLjIsMC41LDAuMwoJCWMwLjIsMC4yLDAuNSwwLjQsMC44LDAuNmwwLjcsMC40YzAuMywwLjEsMC41LDAuMywwLjgsMC40YzAuMywwLjEsMC41LDAuMiwwLjgsMC4zbDAuOCwwLjJjMC4zLDAsMC42LDAsMSwwYzAuMiwwLDAuNCwwLDAuNiwwaDAuMQoJCWMwLjMsMCwwLjcsMCwxLTAuMWMwLjIsMCwwLjUsMCwwLjcsMGMwLjMtMC4xLDAuNi0wLjEsMC44LTAuM2wwLjgtMC4zYzAuMi0wLjEsMC41LTAuMiwwLjctMC40YzAuMy0wLjEsMC41LTAuMywwLjgtMC40CgkJYzAuMi0wLjEsMC40LTAuMywwLjYtMC41YzAuMy0wLjIsMC41LTAuNCwwLjctMC43bDAuMS0wLjFjMC4xLTAuMSwwLjMtMC4zLDAuNC0wLjVjMC4yLTAuMywwLjQtMC41LDAuNi0wLjgKCQljMC4yLTAuMywwLjMtMC41LDAuNC0wLjdzMC4zLTAuNSwwLjQtMC44YzAuMS0wLjMsMC4yLTAuNSwwLjMtMC44YzAuMS0wLjMsMC4yLTAuNSwwLjItMC44YzAuMS0wLjMsMC4xLTAuNiwwLjEtMQoJCWMwLTAuMiwwLTAuNCwwLTAuNlY1Ni43Qzg2LjksNTkuNiw4My40LDYxLjMsNzkuNyw2MS4zeiIvPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTguNyw1OS4yYzQuOCwwLDguNy0zLjksOC43LTguN2wwLDBWOS4xYzAtNC44LTMuOS04LjctOC43LTguN1MwLDQuMywwLDkuMXY0MS41QzAsNTUuNCwzLjksNTkuMiw4LjcsNTkuMgoJCUM4LjcsNTkuMiw4LjcsNTkuMiw4LjcsNTkuMnoiLz4KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yNTEuMywyOC4xYy00LjgsMC04LjcsMy45LTguNyw4LjdsMCwwdjQxLjVjMCw0LjgsMy45LDguNyw4LjcsOC43YzQuOCwwLDguNy0zLjksOC43LTguN1YzNi44CgkJQzI2MCwzMiwyNTYuMSwyOC4xLDI1MS4zLDI4LjFMMjUxLjMsMjguMXoiLz4KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yNTkuOSw4LjRjMC0wLjMsMC0wLjYtMC4xLTFjMC0wLjMtMC4xLTAuNS0wLjItMC44Yy0wLjEtMC4zLTAuMS0wLjYtMC4zLTAuOGMtMC4xLTAuMy0wLjMtMC41LTAuNC0wLjgKCQljLTAuMS0wLjMtMC4yLTAuNS0wLjQtMC43cy0wLjQtMC41LTAuNi0wLjhjLTAuMS0wLjItMC4yLTAuMy0wLjQtMC41aC0wLjFjLTAuMi0wLjItMC41LTAuNS0wLjctMC43Yy0wLjItMC4xLTAuNC0wLjMtMC42LTAuNQoJCWMtMC4zLTAuMi0wLjUtMC4zLTAuOC0wLjRjLTAuMi0wLjEtMC40LTAuMy0wLjctMC40TDI1NCwwLjljLTAuMy0wLjEtMC41LTAuMi0wLjgtMC4zYy0wLjIsMC0wLjUtMC4xLTAuNy0wLjEKCQljLTAuMy0wLjEtMC43LTAuMS0xLTAuMWgtMC4xYy0wLjIsMC0wLjQsMC0wLjYsMGMtMC4zLDAtMC43LDAtMSwwTDI0OSwwLjZjLTAuMywwLTAuNiwwLjItMC44LDAuM2MtMC4zLDAuMS0wLjUsMC4yLTAuOCwwLjQKCQlsLTAuNywwLjRjLTAuMywwLjItMC41LDAuNC0wLjgsMC42Yy0wLjIsMC4xLTAuMywwLjItMC41LDAuM2wtMzAsMjguMWwtMzAtMjhsLTAuNS0wLjRjLTAuMy0wLjItMC41LTAuNC0wLjgtMC42bC0wLjctMC40CgkJYy0wLjItMC4xLTAuNS0wLjMtMC44LTAuNGMtMC4zLTAuMS0wLjYtMC4yLTAuOC0wLjNMMTgxLDAuNWMtMC4zLDAtMC42LDAtMSwwYy0wLjIsMC0wLjQsMC0wLjYsMGgtMC4xYy0wLjMsMC0wLjcsMC0xLDAuMQoJCWMtMC4yLDAtMC41LDAtMC43LDAuMWMtMC4zLDAuMS0wLjYsMC4yLTAuOCwwLjNMMTc2LDEuMmMtMC4yLDAuMS0wLjUsMC4yLTAuNywwLjRjLTAuMywwLjEtMC41LDAuMy0wLjgsMC40cy0wLjQsMC4zLTAuNSwwLjUKCQljLTAuMywwLjItMC41LDAuNC0wLjgsMC43aC0wLjFjLTAuMSwwLjEtMC4yLDAuMy0wLjQsMC41Yy0wLjEsMC4xLTAuNCwwLjUtMC42LDAuOHMtMC4zLDAuNS0wLjQsMC43Yy0wLjEsMC4yLTAuMywwLjUtMC40LDAuOAoJCWMtMC4xLDAuMy0wLjIsMC41LTAuMywwLjhDMTcxLjEsNywxNzEsNy4yLDE3MSw3LjVjMCwwLjMsMCwwLjcsMCwxYzAsMC4yLDAsMC40LDAsMC42djIxLjNjNC4zLTUuMSwxMS45LTUuNywxNy0xLjQKCQljMC4xLDAuMSwwLjIsMC4yLDAuMywwLjN2LTAuM2wyMC44LDE5LjVjMy43LDMsOSwzLDEyLjYsMGwxOS45LTE4LjVjNC42LTQuOSwxMi4yLTUuMSwxNy4xLTAuNmMwLjUsMC40LDAuOSwwLjksMS4zLDEuNFY5CgkJQzI2MCw4LjgsMjYwLDguNiwyNTkuOSw4LjR6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTc5LjUsMjguMWMtNC44LDAtOC43LDMuOS04LjcsOC43bDAsMHY0MS41YzAsNC44LDMuOSw4LjcsOC43LDguN3M4LjctMy45LDguNy04LjdjMCwwLDAsMCwwLDBWMzYuOAoJCUMxODguMSwzMiwxODQuMiwyOC4xLDE3OS41LDI4LjF6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTEzLjYsMjQuNmMtNC44LDAtOC43LDMuOS04LjcsOC43bDAsMHY0NS4xYzAsNC44LDMuOSw4LjcsOC43LDguN2M0LjgsMCw4LjctMy45LDguNy04LjdWMzMuMgoJCUMxMjIuMywyOC41LDExOC40LDI0LjYsMTEzLjYsMjQuNkwxMTMuNiwyNC42eiIvPgoJPGNpcmNsZSBjbGFzcz0ic3QwIiBjeD0iMTEzLjYiIGN5PSI5IiByPSI4LjciLz4KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xNDYuNiwyNC42Yy00LjgsMC04LjcsMy45LTguNyw4Ljd2MHY0NS4xYy0wLjIsNC44LDMuNSw4LjgsOC4zLDkuMWM0LjgsMC4yLDguOC0zLjUsOS4xLTguMwoJCWMwLTAuMywwLTAuNSwwLTAuOFYzMy4yQzE1NS4yLDI4LjUsMTUxLjQsMjQuNiwxNDYuNiwyNC42QzE0Ni42LDI0LjYsMTQ2LjYsMjQuNiwxNDYuNiwyNC42eiIvPgoJPGNpcmNsZSBjbGFzcz0ic3QwIiBjeD0iMTQ2LjYiIGN5PSI5IiByPSI4LjciLz4KPC9nPgo8L3N2Zz4K",
+            -- Black:
+            Image = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJCbGFja19BaXJQbGF5X2ljb24iIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMjYwIDg3LjQiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDI2MCA4Ny40OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6IzAwMDAwMDt9Cjwvc3R5bGU+CjxnPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTgwLjYsMC4zYy00LjgsMC04LjcsMy45LTguNyw4Ljd2NDEuNWMwLDQuOCwzLjksOC43LDguNyw4LjdjNC44LDAsOC43LTMuOSw4LjctOC43VjkgICBDODkuMiw0LjIsODUuMywwLjMsODAuNiwwLjNDODAuNiwwLjMsODAuNiwwLjMsODAuNiwwLjN6IiBmaWxsPSIjMDAwMDAwIi8+Cgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNzkuNyw2MS4zYy0zLjMsMC02LjUtMS40LTguOC0zLjhMNTEsMzguOWMtMS43LTEuNi00LTIuNC02LjQtMi4zYy0yLjQtMC4xLTQuNywwLjctNi40LDIuM0wxNy40LDU4LjR2LTAuMyAgIGMtNC45LDQuNS0xMi42LDQuMS0xNy4xLTAuOEMwLjIsNTcuMiwwLjEsNTcuMSwwLDU3djIxLjRjMCwwLjIsMCwwLjQsMCwwLjZjMCwwLjMsMCwwLjcsMC4xLDFjMCwwLjMsMC4xLDAuNSwwLjIsMC44ICAgYzAuMSwwLjMsMC4yLDAuNiwwLjMsMC44YzAuMSwwLjMsMC4zLDAuNSwwLjQsMC44czAuMywwLjUsMC40LDAuN3MwLjQsMC41LDAuNiwwLjhjMC4yLDAuMywwLjIsMC4zLDAuNCwwLjVsMCwwbDAuMSwwLjEgICBjMC4yLDAuMiwwLjUsMC41LDAuOCwwLjdjMC4yLDAuMSwwLjQsMC4zLDAuNSwwLjVjMC4yLDAuMSwwLjUsMC4zLDAuOCwwLjRjMC4yLDAuMSwwLjUsMC4zLDAuNywwLjRsMC44LDAuMyAgIGMwLjMsMC4xLDAuNiwwLjIsMC45LDAuM2MwLjIsMCwwLjUsMCwwLjcsMGMwLjMsMC4xLDAuNiwwLjEsMSwwLjFoMC4xYzAuMiwwLDAuNCwwLDAuNiwwYzAuMywwLDAuNiwwLDEsMGwwLjgtMC4yICAgYzAuMywwLDAuNi0wLjIsMC44LTAuM2MwLjMtMC4xLDAuNS0wLjIsMC44LTAuNGwwLjctMC40YzAuMy0wLjIsMC41LTAuNCwwLjgtMC42bDAuNS0wLjRsMzAuMS0yOC4xbDMwLDI4YzAuMSwwLjEsMC4zLDAuMiwwLjUsMC4zICAgYzAuMiwwLjIsMC41LDAuNCwwLjgsMC42bDAuNywwLjRjMC4zLDAuMSwwLjUsMC4zLDAuOCwwLjRjMC4zLDAuMSwwLjUsMC4yLDAuOCwwLjNsMC44LDAuMmMwLjMsMCwwLjYsMCwxLDBjMC4yLDAsMC40LDAsMC42LDBoMC4xICAgYzAuMywwLDAuNywwLDEtMC4xYzAuMiwwLDAuNSwwLDAuNywwYzAuMy0wLjEsMC42LTAuMSwwLjgtMC4zbDAuOC0wLjNjMC4yLTAuMSwwLjUtMC4yLDAuNy0wLjRjMC4zLTAuMSwwLjUtMC4zLDAuOC0wLjQgICBjMC4yLTAuMSwwLjQtMC4zLDAuNi0wLjVjMC4zLTAuMiwwLjUtMC40LDAuNy0wLjdsMC4xLTAuMWMwLjEtMC4xLDAuMy0wLjMsMC40LTAuNWMwLjItMC4zLDAuNC0wLjUsMC42LTAuOCAgIGMwLjItMC4zLDAuMy0wLjUsMC40LTAuN3MwLjMtMC41LDAuNC0wLjhjMC4xLTAuMywwLjItMC41LDAuMy0wLjhjMC4xLTAuMywwLjItMC41LDAuMi0wLjhjMC4xLTAuMywwLjEtMC42LDAuMS0xICAgYzAtMC4yLDAtMC40LDAtMC42VjU2LjdDODYuOSw1OS42LDgzLjQsNjEuMyw3OS43LDYxLjN6IiBmaWxsPSIjMDAwMDAwIi8+Cgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNOC43LDU5LjJjNC44LDAsOC43LTMuOSw4LjctOC43bDAsMFY5LjFjMC00LjgtMy45LTguNy04LjctOC43UzAsNC4zLDAsOS4xdjQxLjVDMCw1NS40LDMuOSw1OS4yLDguNyw1OS4yICAgQzguNyw1OS4yLDguNyw1OS4yLDguNyw1OS4yeiIgZmlsbD0iIzAwMDAwMCIvPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTI1MS4zLDI4LjFjLTQuOCwwLTguNywzLjktOC43LDguN2wwLDB2NDEuNWMwLDQuOCwzLjksOC43LDguNyw4LjdjNC44LDAsOC43LTMuOSw4LjctOC43VjM2LjggICBDMjYwLDMyLDI1Ni4xLDI4LjEsMjUxLjMsMjguMUwyNTEuMywyOC4xeiIgZmlsbD0iIzAwMDAwMCIvPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTI1OS45LDguNGMwLTAuMywwLTAuNi0wLjEtMWMwLTAuMy0wLjEtMC41LTAuMi0wLjhjLTAuMS0wLjMtMC4xLTAuNi0wLjMtMC44Yy0wLjEtMC4zLTAuMy0wLjUtMC40LTAuOCAgIGMtMC4xLTAuMy0wLjItMC41LTAuNC0wLjdzLTAuNC0wLjUtMC42LTAuOGMtMC4xLTAuMi0wLjItMC4zLTAuNC0wLjVoLTAuMWMtMC4yLTAuMi0wLjUtMC41LTAuNy0wLjdjLTAuMi0wLjEtMC40LTAuMy0wLjYtMC41ICAgYy0wLjMtMC4yLTAuNS0wLjMtMC44LTAuNGMtMC4yLTAuMS0wLjQtMC4zLTAuNy0wLjRMMjU0LDAuOWMtMC4zLTAuMS0wLjUtMC4yLTAuOC0wLjNjLTAuMiwwLTAuNS0wLjEtMC43LTAuMSAgIGMtMC4zLTAuMS0wLjctMC4xLTEtMC4xaC0wLjFjLTAuMiwwLTAuNCwwLTAuNiwwYy0wLjMsMC0wLjcsMC0xLDBMMjQ5LDAuNmMtMC4zLDAtMC42LDAuMi0wLjgsMC4zYy0wLjMsMC4xLTAuNSwwLjItMC44LDAuNCAgIGwtMC43LDAuNGMtMC4zLDAuMi0wLjUsMC40LTAuOCwwLjZjLTAuMiwwLjEtMC4zLDAuMi0wLjUsMC4zbC0zMCwyOC4xbC0zMC0yOGwtMC41LTAuNGMtMC4zLTAuMi0wLjUtMC40LTAuOC0wLjZsLTAuNy0wLjQgICBjLTAuMi0wLjEtMC41LTAuMy0wLjgtMC40Yy0wLjMtMC4xLTAuNi0wLjItMC44LTAuM0wxODEsMC41Yy0wLjMsMC0wLjYsMC0xLDBjLTAuMiwwLTAuNCwwLTAuNiwwaC0wLjFjLTAuMywwLTAuNywwLTEsMC4xICAgYy0wLjIsMC0wLjUsMC0wLjcsMC4xYy0wLjMsMC4xLTAuNiwwLjItMC44LDAuM0wxNzYsMS4yYy0wLjIsMC4xLTAuNSwwLjItMC43LDAuNGMtMC4zLDAuMS0wLjUsMC4zLTAuOCwwLjRzLTAuNCwwLjMtMC41LDAuNSAgIGMtMC4zLDAuMi0wLjUsMC40LTAuOCwwLjdoLTAuMWMtMC4xLDAuMS0wLjIsMC4zLTAuNCwwLjVjLTAuMSwwLjEtMC40LDAuNS0wLjYsMC44cy0wLjMsMC41LTAuNCwwLjdjLTAuMSwwLjItMC4zLDAuNS0wLjQsMC44ICAgYy0wLjEsMC4zLTAuMiwwLjUtMC4zLDAuOEMxNzEuMSw3LDE3MSw3LjIsMTcxLDcuNWMwLDAuMywwLDAuNywwLDFjMCwwLjIsMCwwLjQsMCwwLjZ2MjEuM2M0LjMtNS4xLDExLjktNS43LDE3LTEuNCAgIGMwLjEsMC4xLDAuMiwwLjIsMC4zLDAuM3YtMC4zbDIwLjgsMTkuNWMzLjcsMyw5LDMsMTIuNiwwbDE5LjktMTguNWM0LjYtNC45LDEyLjItNS4xLDE3LjEtMC42YzAuNSwwLjQsMC45LDAuOSwxLjMsMS40VjkgICBDMjYwLDguOCwyNjAsOC42LDI1OS45LDguNHoiIGZpbGw9IiMwMDAwMDAiLz4KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xNzkuNSwyOC4xYy00LjgsMC04LjcsMy45LTguNyw4LjdsMCwwdjQxLjVjMCw0LjgsMy45LDguNyw4LjcsOC43czguNy0zLjksOC43LTguN2MwLDAsMCwwLDAsMFYzNi44ICAgQzE4OC4xLDMyLDE4NC4yLDI4LjEsMTc5LjUsMjguMXoiIGZpbGw9IiMwMDAwMDAiLz4KCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0xMTMuNiwyNC42Yy00LjgsMC04LjcsMy45LTguNyw4LjdsMCwwdjQ1LjFjMCw0LjgsMy45LDguNyw4LjcsOC43YzQuOCwwLDguNy0zLjksOC43LTguN1YzMy4yICAgQzEyMi4zLDI4LjUsMTE4LjQsMjQuNiwxMTMuNiwyNC42TDExMy42LDI0LjZ6IiBmaWxsPSIjMDAwMDAwIi8+Cgk8Y2lyY2xlIGNsYXNzPSJzdDAiIGN4PSIxMTMuNiIgY3k9IjkiIHI9IjguNyIgZmlsbD0iIzAwMDAwMCIvPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTE0Ni42LDI0LjZjLTQuOCwwLTguNywzLjktOC43LDguN3YwdjQ1LjFjLTAuMiw0LjgsMy41LDguOCw4LjMsOS4xYzQuOCwwLjIsOC44LTMuNSw5LjEtOC4zICAgYzAtMC4zLDAtMC41LDAtMC44VjMzLjJDMTU1LjIsMjguNSwxNTEuNCwyNC42LDE0Ni42LDI0LjZDMTQ2LjYsMjQuNiwxNDYuNiwyNC42LDE0Ni42LDI0LjZ6IiBmaWxsPSIjMDAwMDAwIi8+Cgk8Y2lyY2xlIGNsYXNzPSJzdDAiIGN4PSIxNDYuNiIgY3k9IjkiIHI9IjguNyIgZmlsbD0iIzAwMDAwMCIvPgo8L2c+Cjwvc3ZnPg==",
+            Position = {40, 25},
+            Size = {282, 96}
+        }
+    )
+
+    if current_page == PageNames[1] then
+        -- Setup Page
+
+        layout["Status"] = {PrettyName = "Status", Style = "Text Block", Position = {41, 144}, Size = {282, 30}}
+        layout["IP_Address"] = {PrettyName = "IP Address", Style = "Text", Position = {173, 186}, Size = textboxSize}
+
+        -- layout["Serial_Number"] = {
+        --     PrettyName = "Serial Number",
+        --     Style = "Text",
+        --     Position = {173, 245},
+        --     Size = textboxSize
+        -- }
+        layout["MAC_Address"] = {
+            PrettyName = "MAC Address",
+            Style = "Text",
+            Position = {173, 245 + (textboxSize[2] * 1)},
+            Size = textboxSize
+        }
+        layout["Release_Version"] = {
+            PrettyName = "Firmware Version",
+            Style = "Text",
+            Position = {173, 245 + (textboxSize[2] * 2)},
+            Size = textboxSize
+        }
+        layout["Internet_Connection"] = {
+            PrettyName = "Has Internet",
+            Style = "Text",
+            Position = {173, 245 + (textboxSize[2] * 3)},
+            Size = textboxSize
+        }
+        layout["Unit_Name"] = {
+            PrettyName = "Unit Name",
+            Style = "Text",
+            Position = {173, 245 + (textboxSize[2] * 4)},
+            Size = textboxSize
+        }
+        layout["Unit_Group"] = {
+            PrettyName = "Playing Group",
+            Style = "Text",
+            Position = {173, 245 + (textboxSize[2] * 5)},
+            Size = textboxSize
+        }
+        layout["Stored_Presets"] = {
+            PrettyName = "Number of Presets",
+            Style = "Text",
+            Position = {173, 245 + (textboxSize[2] * 6)},
+            Size = textboxSize
+        }
+        layout["Unit_UUID"] = {
+            PrettyName = "UUID",
+            Style = "Text",
+            Position = {173, 245 + (textboxSize[2] * 7)},
+            Size = textboxSize
+        }
+        layout["Fixed_Volume"] = {
+            PrettyName = "Fixed Volume",
+            Style = "Text",
+            Position = {173, 245 + (textboxSize[2] * 8)},
+            Size = textboxSize
+        }
+        -- layout["Unit_Mute"] = {
+        --     PrettyName = "Mute",
+        --     Style = "Control",
+        --     Position = {173, 245 + (textboxSize[2] * 9)},
+        --     Size = textboxSize
+        -- }
+
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "IP Address:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 186},
+                Size = labelSize
+            }
+        )
+        -- table.insert(
+        --     graphics,
+        --     {
+        --         Type = "Text",
+        --         Text = "Serial Number:",
+        --         Font = FName,
+        --         FontSize = FSize,
+        --         FontStyle = FStyle,
+        --         HTextAlign = "Right",
+        --         Color = Colors.Black,
+        --         Position = {40, 245},
+        --         Size = labelSize
+        --     }
+        -- )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "MAC Address:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 245 + (textboxSize[2] * 1)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Firmware Version:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 245 + (textboxSize[2] * 2)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Has Internet:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 245 + (textboxSize[2] * 3)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Unit Name",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 245 + (textboxSize[2] * 4)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Connected Group:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 245 + (textboxSize[2] * 5)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Stored Presets:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 245 + (textboxSize[2] * 6)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Unit UUID",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 245 + (textboxSize[2] * 7)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Fixed Volume",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 245 + (textboxSize[2] * 8)},
+                Size = labelSize
+            }
+        )
+    -- table.insert(
+    --     graphics,
+    --     {
+    --         Type = "Text",
+    --         Text = "Muted",
+    --         Font = FName,
+    --         FontSize = FSize,
+    --         FontStyle = FStyle,
+    --         HTextAlign = "Right",
+    --         Color = Colors.Black,
+    --         Position = {40, 245 + (textboxSize[2] * 9)},
+    --         Size = labelSize
+    --     }
+    -- )
+    end
+
+    if current_page == PageNames[2] then
+        -- Controls Page
+        layout["EQ_State"] = {
+            PrettyName = "EQ On/Off",
+            Legend = "Off",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            Position = {173, 148},
+            Size = {37, 30}
+        }
+        layout["EQ_Selection"] = {
+            PrettyName = "EQ",
+            Style = "ComboBox",
+            Position = {(173 + 37), 148},
+            Size = {(textboxSize[1] - 37), textboxSize[2]}
+        }
+        layout["Input_Selection"] = {
+            PrettyName = "Input",
+            Style = "ComboBox",
+            Position = {173, 148 + (textboxSize[2] * 1)},
+            Size = textboxSize
+        }
+        layout["Output_Selection"] = {
+            PrettyName = "Output",
+            Style = "ComboBox",
+            Position = {173, 148 + (textboxSize[2] * 2)},
+            Size = textboxSize
+        }
+        layout["Volume"] = {
+            PrettyName = "Volume",
+            Style = "Fader",
+            Color = Colors.Theme,
+            ShowTextbox = true,
+            IsReadOnly = false,
+            TextBoxStyle = "NoBackground",
+            Position = {173, 148 + (textboxSize[2] * 3)},
+            Size = textboxSize
+        }
+        layout["Mute_Toggle"] = {
+            PrettyName = "Mute",
+            Style = "Button",
+            Color = Colors.Red,
+            Position = {173, 148 + (textboxSize[2] * 4)},
+            Size = {37, 30}
+        }
+        layout["Play_URL"] = {
+            PrettyName = "Play from URL",
+            Style = "Text",
+            Position = {(173 + 37), 148 + (textboxSize[2] * 5)},
+            Size = {(textboxSize[1] - 37), textboxSize[2]}
+        }
+        layout["Playlist_URL"] = {
+            PrettyName = "Playlist URL",
+            Style = "Text",
+            Position = {(173 + 37), 148 + (textboxSize[2] * 6)},
+            Size = {(textboxSize[1] - 37), textboxSize[2]}
+        }
+        layout["Go_URL"] = {
+            PrettyName = "Play URL",
+            Style = "Button",
+            Legend = "Go",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Color = Colors.Theme,
+            Position = {173, 148 + (textboxSize[2] * 5)},
+            Size = {37, 30}
+        }
+        layout["Go_PlaylistURL"] = {
+            PrettyName = "Play Playlist URL",
+            Legend = "Go",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            Position = {173, 148 + (textboxSize[2] * 6)},
+            Size = {37, 30}
+        }
+
+        layout["Reboot"] = {
+            PrettyName = "Reboot",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            Legend = "Reboot",
+            Position = {170, 148 + (textboxSize[2] * 11)},
+            Size = {105, 30}
+        }
+        layout["Shutdown"] = {
+            PrettyName = "Shutdown",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            Legend = "Shutdown",
+            Position = {170, 148 + (textboxSize[2] * 9)},
+            Size = {105, 30}
+        }
+        layout["Cancel_Shutdown"] = {
+            PrettyName = "Cancel Shutdown",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            Legend = "Cancel Shutdown",
+            WordWrap = true,
+            Position = {170, 148 + (textboxSize[2] * 10)},
+            Size = {105, 30}
+        }
+        layout["Shutdown_Time"] = {
+            PrettyName = "Shutdown Time",
+            Style = "Text",
+            Color = Colors.Theme,
+            ShowTextbox = false,
+            IsReadOnly = false,
+            Position = {173, 148 + (textboxSize[2] * 8)},
+            Size = {45, textboxSize[2]}
+        }
+
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "EQ:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 148},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Input:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 148 + (textboxSize[2] * 1)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Output:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 148 + (textboxSize[2] * 2)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Volume:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 148 + (textboxSize[2] * 3)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Mute:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 148 + (textboxSize[2] * 4)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Play from URL:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 148 + (textboxSize[2] * 5)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Playlist URL:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 148 + (textboxSize[2] * 6)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Shutdown Timer:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Right",
+                Color = Colors.Black,
+                Position = {40, 148 + (textboxSize[2] * 8)},
+                Size = labelSize
+            }
+        )
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "seconds",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Left",
+                Color = Colors.Black,
+                Position = {(173 + 50), 148 + (textboxSize[2] * 8)},
+                Size = {55, labelSize[2]}
+            }
+        )
+    end
+
+    if current_page == PageNames[3] then
+        -- Presets Page
+        local buttonsperrow = 3
+        local buttonrownumber = 1
+        local pox = 40
+        local poy = 135
+
+        for i = 1, props["Preset Count"].Value do
+            if buttonrownumber ~= 1 then
+                pox = (pox + presetbuttonsize[1] + 5)
+            else
+                pox = 40
+            end
+            layout["Preset_" .. i] = {
+                PrettyName = "Preset " .. i,
+                Style = "Button",
+                Legend = "Preset " .. i,
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                Color = Colors.Theme,
+                Position = {pox, poy},
+                Size = presetbuttonsize
+            }
+            if buttonrownumber < buttonsperrow then
+                buttonrownumber = buttonrownumber + 1
+            else
+                buttonrownumber = 1
+                poy = poy + (presetbuttonsize[2] + 5)
+            end
+        end
+    end
+
+    if current_page == PageNames[4] then
+        -- Now Playing Page
+        layout["Cover_Art"] = {
+            PrettyName = "Cover Art",
+            Style = "Image",
+            Legend = "Not Playing",
+            Font = FName,
+            FontSize = (FSize + 20),
+            FontStyle = FStyle,
+            Color = Colors.White,
+            Position = {40, 130},
+            Size = {282, 282}
+        }
+        -- layout["Seek_Bar"] = {
+        --     PrettyName = "Seek Bar",
+        --     Style = "Fader",
+        --     Color = Colors.Theme,
+        --     ShowTextbox = false,
+        --     IsReadOnly = false,
+        --     TextBoxStyle = "NoBackground",
+        --     Position = {40, 417},
+        --     Size = {282, 30}
+        -- }
+
+        layout["Playing_Title"] = {
+            PrettyName = "Playing Title",
+            Style = "Text",
+            Position = {40, 482},
+            Size = {282, 30}
+        }
+
+        layout["Playing_Artist"] = {
+            PrettyName = "Playing Artist",
+            Style = "Text",
+            Position = {40, 542},
+            Size = {282, 30}
+        }
+
+        layout["Playing_Album"] = {
+            PrettyName = "Playing Album",
+            Style = "Text",
+            Position = {40, 602},
+            Size = {282, 30}
+        }
+
+        layout["Playing_Source"] = {
+            PrettyName = "Playing From",
+            Style = "Text",
+            Position = {40, 662},
+            Size = {282, 30}
+        }
+
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Title:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Center",
+                Color = Colors.Black,
+                Position = {40, 452},
+                Size = {282, 30}
+            }
+        )
+
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Artist:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Center",
+                Color = Colors.Black,
+                Position = {40, 512},
+                Size = {282, 30}
+            }
+        )
+
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Album:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Center",
+                Color = Colors.Black,
+                Position = {40, 572},
+                Size = {282, 30}
+            }
+        )
+
+        table.insert(
+            graphics,
+            {
+                Type = "Text",
+                Text = "Playing From:",
+                Font = FName,
+                FontSize = FSize,
+                FontStyle = FStyle,
+                HTextAlign = "Center",
+                Color = Colors.Black,
+                Position = {40, 632},
+                Size = {282, 30}
+            }
+        )
+
+        layout["CMD_Play"] = {
+            PrettyName = "Play",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            WordWrap = true,
+            Position = {40, 697},
+            Size = {66, 66}
+        }
+        layout["CMD_Pause"] = {
+            PrettyName = "Pause",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            WordWrap = true,
+            Position = {112, 697},
+            Size = {66, 66}
+        }
+        layout["CMD_PPToggle"] = {
+            PrettyName = "Play/Pause Toggle",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            WordWrap = true,
+            Position = {184, 697},
+            Size = {66, 66}
+        }
+        layout["CMD_Stop"] = {
+            PrettyName = "Stop",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            WordWrap = true,
+            Position = {256, 697},
+            Size = {66, 66}
+        }
+
+        layout["CMD_Prev"] = {
+            PrettyName = "Previous",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            WordWrap = true,
+            Position = {40, 768},
+            Size = {66, 66}
+        }
+        layout["CMD_Next"] = {
+            PrettyName = "Next",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            WordWrap = true,
+            Position = {112, 768},
+            Size = {66, 66}
+        }
+        layout["CMD_Loop"] = {
+            PrettyName = "Loop Mode",
+            Font = FName,
+            FontSize = FSize,
+            FontStyle = FStyle,
+            Style = "Button",
+            Color = Colors.Theme,
+            WordWrap = true,
+            Position = {184, 768},
+            Size = {66, 66}
+        }
+    end
+
+    return layout, graphics
+end
+
+if Controls then
+    rapidjson = require("rapidjson")
+    pollingTimer = Timer.New()
+    IPAdd = Controls.IP_Address.String
+    inputModes = {
+        ["0"] = "None",
+        ["1"] = "AirPlay",
+        ["2"] = "DLNA",
+        ["10"] = "Network Streaming",
+        ["11"] = "UDisk",
+        ["16"] = "TF Card Playlist",
+        ["20"] = "HTTP URL",
+        ["31"] = "Spotify Connect",
+        ["32"] = "Tidal Connect",
+        ["40"] = "Line-In",
+        ["41"] = "Bluetooth",
+        ["42"] = "External Storage",
+        ["43"] = "Optical",
+        ["47"] = "AUX In",
+        ["49"] = "HDMI",
+        ["50"] = "Mirror",
+        ["51"] = "USB DAC Input",
+        ["60"] = "Voice mail",
+        ["99"] = "Slave Mode"
+    }
+
+    outputModes = {
+        ["1"] = "SPDIF",
+        ["2"] = "Line Out",
+        ["3"] = "Optical"
+    }
+
+    function hexToAscii(hex_string)
+        -- Remove any spaces or non-hex characters just in case
+        hex = hex_string:gsub("%s+", ""):lower()
+
+        -- If odd length, pad with a leading zero
+        if #hex % 2 ~= 0 then
+            hex = "0" .. hex
+        end
+
+        local ascii = ""
+        for i = 1, #hex, 2 do
+            local byte = hex:sub(i, i + 1)
+            local num = tonumber(byte, 16)
+            if num then
+                ascii = ascii .. string.char(num)
+            else
+                -- Handle invalid hex input
+                return nil, "Invalid hex digit found"
+            end
+        end
+        return ascii
+    end
+
+    function msToMinSec(ms)
+        local totalSeconds = math.floor(ms / 1000)
+        local minutes = math.floor(totalSeconds / 60)
+        local seconds = totalSeconds % 60
+        return string.format("%02d:%02d", minutes, seconds)
+    end
+
+    -- Temp Table Dump
+    function dump(o)
+        if type(o) == "table" then
+            local s = "{ "
+            for k, v in pairs(o) do
+                if type(k) ~= "number" then
+                    k = '"' .. k .. '"'
+                end
+                s = s .. "[" .. k .. "] = " .. dump(v) .. ","
+            end
+            return s .. "} "
+        else
+            return tostring(o)
+        end
+    end
+
+    function Status(code, string)
+        Controls.Status.Value = code
+        Controls.Status.String = string
+    end
+
+    function Send(cmd)
+        -- do stuff
+    end
+
+    function ParseResponse()
+        -- do stuff
+    end
+
+    function Initialization()
+        local inputSelections = {}
+        local outputSelections = {}
+        for ix, name in pairs(inputModes) do
+            table.insert(inputSelections, name)
+        end
+        for ix, name in pairs(outputModes) do
+            table.insert(outputSelections, name)
+        end
+        Controls.Input_Selection.Choices = inputSelections
+        Controls.Output_Selection.Choices = outputSelections
+        getEQList()
+        Controls.IP_Address.EventHandler()
+    end
+
+    function GetDeviceInfo()
+        sendHTTPCommand("getStatusEx")
+    end
+
+    function PollDevice()
+        GetDeviceInfo()
+        getPresetInfo()
+        getMetaInfo()
+        getPlayerStatus()
+        getEQBand()
+        getAudioOutputHardwareMode()
+    end
+
+    ---checks if a string represents an ip address
+    -- @return true or false
+    function isIpAddress(ip)
+        if not ip then
+            return false
+        end
+        local a, b, c, d = ip:match("^(%d%d?%d?)%.(%d%d?%d?)%.(%d%d?%d?)%.(%d%d?%d?)$")
+        a = tonumber(a)
+        b = tonumber(b)
+        c = tonumber(c)
+        d = tonumber(d)
+        if not a or not b or not c or not d then
+            return false
+        end
+        if a < 0 or 255 < a then
+            return false
+        end
+        if b < 0 or 255 < b then
+            return false
+        end
+        if c < 0 or 255 < c then
+            return false
+        end
+        if d < 0 or 255 < d then
+            return false
+        end
+        return true
+    end
+
+    function numeric_index_exists(t, i)
+        return rawget(t, i) ~= nil
+    end
+
+    function ArtworkDownloadComplete(tbl, code, data, err, headers)
+        legend = {
+            DrawChrome = false,
+            IconData = Crypto.Base64Encode(data)
+        }
+        Controls.Cover_Art.Legend = rapidjson.encode(legend)
+    end
+
+    function updateArtwork()
+        local albumURL = Controls.Cover_Art_URL.String
+        if string.match(albumURL, "[a-z]*://[^ >,;]*") then
+            HttpClient.Download(
+                {
+                    Url = albumURL,
+                    Timeout = 30,
+                    EventHandler = ArtworkDownloadComplete
+                }
+            )
+        else
+            Controls.Cover_Art.Legend = "No Artwork"
+        end
+    end
+
+    function sendHTTPCommand(playerCommand)
+        print(playerCommand)
+        HttpClient.Get {
+            Url = "https://" .. IPAdd .. "/httpapi.asp?command=" .. playerCommand,
+            Headers = {
+                ["Content-Type"] = "application/json; charset=UTF-8"
+            },
+            TimeOut = 2,
+            EventHandler = processHTTPReply
+        }
+    end
+
+    function processHTTPReply(tbl, code, d, e)
+        if (data ~= "") and (code == 200) then
+            local calledCMD = string.match(tbl.Url, "=(.*)")
+
+            Status(0, "")
+
+            if type(d) ~= "table" then
+                returnData = rapidjson.decode(d)
+            else
+                returnData = d
+            end
+
+            if calledCMD == "getStatusEx" then
+                Controls.MAC_Address.String = returnData["MAC"]
+                Controls.Release_Version.String = returnData["firmware"]
+                Controls.Internet_Connection.String = returnData["internet"] == "1" and "Yes" or "No"
+                Controls.Unit_Name.String = returnData["DeviceName"]
+                Controls.Unit_Group.String = returnData["GroupName"]
+                --Controls.Stored_Presets.String = returnData["preset_key"]
+                Controls.Unit_UUID.String = returnData["uuid"]
+                Controls.Fixed_Volume.String = returnData["volume_control"] == "1" and "Yes" or "No"
+                Controls.Volume.IsDisabled = returnData["volume_control"] == "1" and true or false
+                return
+            end
+
+            if calledCMD == "EQGetList" then
+                Controls["EQ_Selection"].Choices = returnData
+                return
+            end
+
+            if calledCMD == "getPresetInfo" then
+                local validPresets = {}
+                Controls.Stored_Presets.String = returnData["preset_num"]
+                for idx = 1, Properties["Preset Count"].Value do
+                    if rawget(returnData["preset_list"], idx) ~= nill then
+                        local presetData = returnData["preset_list"][idx]
+                        local presetNumber = presetData["number"]
+                        local presetName = presetData["name"]
+                        local buttonImageURL = presetData["picurl"]
+                        validPresets[tostring(presetNumber)] = true
+                        print(Controls["Preset_" .. presetNumber].Legend)
+                        if Controls["Preset_ArtURI_" .. presetNumber].String ~= buttonImageURL or Controls["Preset_" .. presetNumber].Legend == "" then
+                            local function presetButtinImageDownload(tbl, code, data, err, headers)
+                                legend = {
+                                    DrawChrome = Properties["Preset Background"].Value,
+                                    IconData = Crypto.Base64Encode(data)
+                                }
+                                Controls["Preset_" .. presetNumber].Legend = rapidjson.encode(legend)
+                                Controls["Preset_" .. presetNumber].IsInvisible = false
+                                Controls["Preset_Name_" .. presetNumber].String = presetName
+                                Controls["Preset_ArtURI_" .. presetNumber].String = buttonImageURL
+                            end
+                            HttpClient.Download(
+                                {
+                                    Url = buttonImageURL,
+                                    Timeout = 5,
+                                    EventHandler = presetButtinImageDownload
+                                }
+                            )
+                        end
+                    end
+                    if rawget(validPresets, tostring(idx)) == nill then
+                        Controls["Preset_" .. idx].IsInvisible = true
+                        Controls["Preset_" .. idx].Legend = "Preset " .. tostring(idx)
+                        Controls["Preset_Name_" .. idx].String = ""
+                        Controls["Preset_ArtURI_" .. idx].String = ""
+                    end
+                end
+                return
+            end
+
+            if calledCMD == "getPlayerStatus" then
+                Controls.Input_Selection.String = inputModes[tostring(returnData["mode"])]
+                Controls.Volume.Value = returnData["vol"]
+                Controls.Mute_Toggle.Boolean = returnData["mute"] == "1" and true or false
+                Controls.Playing_Artist.String = hexToAscii(returnData["Artist"])
+                Controls.Playing_Album.String = hexToAscii(returnData["Album"])
+                Controls.Playing_Title.String = hexToAscii(returnData["Title"])
+                if returnData["vendor"] == "" then
+                    Controls.Playing_Source.String = inputModes[tostring(returnData["mode"])]
+                else
+                    Controls.Playing_Source.String = returnData["vendor"]
+                end
+            end
+
+            if calledCMD == "getNewAudioOutputHardwareMode" then
+                Controls.Output_Selection.String = outputModes[tostring(returnData["hardware"])]
+                return
+            end
+
+            if calledCMD == "getMetaInfo" then
+                if returnData ~= nill then
+                    metaData = returnData["metaData"]
+                    if metaData["albumArtUIR"] ~= Controls.Cover_Art_URL.String then
+                        Controls.Cover_Art_URL.String = metaData["albumArtURI"]
+                        updateArtwork()
+                    end
+                else
+                    Controls.Cover_Art_URL.String = ""
+                    Controls.Playing_Artist.String = ""
+                    Controls.Playing_Album.String = ""
+                    Controls.Playing_Title.String = Controls.Playing_Source.String
+                    updateArtwork()
+                end
+                return
+            end
+
+            if calledCMD == "EQGetBand" then
+                if returnData["EQStat"] == "On" then
+                    if Controls.EQ_State.Boolean == false then
+                        Controls.EQ_State.Boolean = true
+                    end
+                    Controls.EQ_Selection.IsDisabled = false
+                    Controls.EQ_State.Legend = "On"
+                else
+                    if Controls.EQ_State.Boolean == true then
+                        Controls.EQ_State.Boolean = false
+                    end
+                    Controls.EQ_Selection.IsDisabled = true
+                    Controls.EQ_State.Boolean = false
+                    Controls.EQ_State.Legend = "Off"
+                end
+                Controls.EQ_Selection.String = returnData["Name"]
+                return
+            end
+
+            if calledCMD == "EQOn" or calledCMD == "EQOff" or string.match(calledCMD, "^EQLoad") then
+                getEQBand()
+                return
+            end
+        else
+            print(code)
+            print(e)
+            Status(3, e)
+        end
+    end
+
+    function getEQList()
+        sendHTTPCommand("EQGetList")
+    end
+
+    function getEQBand()
+        sendHTTPCommand("EQGetBand")
+    end
+
+    function getPresetInfo()
+        sendHTTPCommand("getPresetInfo")
+    end
+
+    function getMetaInfo()
+        sendHTTPCommand("getMetaInfo")
+    end
+
+    function getPlayerStatus()
+        sendHTTPCommand("getPlayerStatus")
+    end
+
+    function getAudioOutputHardwareMode()
+        sendHTTPCommand("getNewAudioOutputHardwareMode")
+    end
+
+    Controls.Cover_Art_URL.EventHandler = function()
+        updateArtwork()
+    end
+
+    -- Event Handlers
+
+    pollingTimer.EventHandler = function()
+        print("Polling")
+        PollDevice()
+    end
+
+    Controls.IP_Address.EventHandler = function()
+        IPAdd = Controls.IP_Address.String
+        if isIpAddress(IPAdd) then
+            --GetDeviceInfo()
+            PollDevice()
+            pollingTimer:Start(10)
+            Status(1, "OK")
+        else
+            Status(2, "Valid IP Address Required")
+            pollingTimer:Stop()
+        end
+    end
+
+    for idx = 1, Properties["Preset Count"].Value do
+        Controls["Preset_" .. idx].EventHandler = function()
+            sendHTTPCommand("MCUKeyShortClick:" .. idx)
+        end
+    end
+
+    Controls.EQ_State.EventHandler = function()
+        if Controls.EQ_State.Boolean then
+            Controls.EQ_State.Legend = "On"
+            sendHTTPCommand("EQOn")
+        else
+            Controls.EQ_State.Legend = "Off"
+            sendHTTPCommand("EQOff")
+        end
+    end
+
+    Controls.EQ_Selection.EventHandler = function()
+        sendHTTPCommand("EQLoad:" .. Controls.EQ_Selection.String)
+    end
+
+    Controls.Input_Selection.EventHandler = function()
+        sendHTTPCommand("setPlayerCmd:switchmode:" .. Controls.Input_Selection.String)
+        Controls.Playing_Source.String = Controls.Input_Selection.String
+    end
+
+    Controls.Output_Selection.EventHandler = function()
+        for k, v in pairs(outputModes) do
+            if Controls.Output_Selection.String == v then
+                sendHTTPCommand("setAudioOutputHardwareMode:" .. tonumber(k))
+            end
+        end
+    end
+
+    Controls.Mute_Toggle.EventHandler = function()
+        if Controls.Mute_Toggle.Boolean == true then
+            sendHTTPCommand("setPlayerCmd:mute:1")
+            Controls.Mute_Toggle.Legend = "Muted"
+        else
+            sendHTTPCommand("setPlayerCmd:mute:0")
+            Controls.Mute_Toggle.Legend = "unMuted"
+        end
+    end
+
+    Controls.Volume.EventHandler = function()
+        sendHTTPCommand("setPlayerCmd:vol:" .. Controls.Volume.Value)
+    end
+
+    --Initialize
+    Initialization()
+end
