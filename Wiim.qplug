@@ -1,7 +1,7 @@
 PluginInfo = {
     Name = "WiiM~WiiM Streamer IP Controler",
-    Version = "1.0",
-    BuildVersion = "1.0.0.9853",
+    Version = "1.2",
+    BuildVersion = "1.2.0.9879",
     Id = "WiiM_IP",
     Author = "Jordan McDonald",
     Description = "IP Control for any WiiM Streamer",
@@ -1553,7 +1553,8 @@ if Controls then
     function ArtworkDownloadComplete(tbl, code, data, err, headers)
         legend = {
             DrawChrome = false,
-            IconData = Crypto.Base64Encode(data)
+            IconData = Crypto.Base64Encode(data),
+            Legend = ""
         }
         Controls.Cover_Art.Legend = rapidjson.encode(legend)
     end
@@ -1626,11 +1627,15 @@ if Controls then
                         local buttonImageURL = presetData["picurl"]
                         validPresets[tostring(presetNumber)] = true
                         print(Controls["Preset_" .. presetNumber].Legend)
-                        if Controls["Preset_ArtURI_" .. presetNumber].String ~= buttonImageURL or Controls["Preset_" .. presetNumber].Legend == "" then
+                        if
+                            Controls["Preset_ArtURI_" .. presetNumber].String ~= buttonImageURL or
+                                Controls["Preset_" .. presetNumber].Legend == ""
+                         then
                             local function presetButtinImageDownload(tbl, code, data, err, headers)
                                 legend = {
                                     DrawChrome = Properties["Preset Background"].Value,
-                                    IconData = Crypto.Base64Encode(data)
+                                    IconData = Crypto.Base64Encode(data),
+                                    Legend = ""
                                 }
                                 Controls["Preset_" .. presetNumber].Legend = rapidjson.encode(legend)
                                 Controls["Preset_" .. presetNumber].IsInvisible = false
@@ -1773,6 +1778,7 @@ if Controls then
     for idx = 1, Properties["Preset Count"].Value do
         Controls["Preset_" .. idx].EventHandler = function()
             sendHTTPCommand("MCUKeyShortClick:" .. idx)
+            Timer.CalleAfter(PollDevice, 2)
         end
     end
 
